@@ -23,9 +23,7 @@
 require_once(__DIR__ . '/../../config.php');
 $PAGE->set_url(new moodle_url('/local/backup/manage.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Manage messages');
-// $PAGE->set_title(get_string('manage_messages', 'local_message'));
-// $PAGE->set_heading(get_string('manage_messages', 'local_message'));
+$PAGE->set_title('List Course');
 
 echo $OUTPUT->header();
 
@@ -34,7 +32,6 @@ $userid = $USER->id;
 $roleassignments = $DB->get_records('role_assignments', ['userid' => $userid]);
 $role = key($roleassignments);
 $rolename = $roleassignments[$role]->roleid;
-// echo $rolename;
 
 if ($userid == 2 ) {
     $sql = "select c.id as id, c.fullname as fullname, c.shortname as shortname, ca.name as categoryname from mdl_course c join mdl_course_categories ca on ca.id = c.category";
@@ -48,18 +45,13 @@ if ($userid == 2 ) {
 } else {
     $url = new moodle_url('/index.php');
     redirect($url);
-    // echo "Access Denied";
 }
 
 $templatecontext = (object)[
     'courses' => array_values($records),
-    'editurl' => new moodle_url('/local/backup/list.php'),
-    // 'messages' => array_values($messages),
-    // 'editurl' => new moodle_url('/local/message/edit.php'),
-    // 'bulkediturl' => new moodle_url('/local/message/bulkedit.php'),
+    'detailurl' => new moodle_url('/local/backup/detail.php'),
 ];
 
-// echo '<h1>Bismillah</h1>';
 echo $OUTPUT->render_from_template('local_backup/manage', $templatecontext);
 
 echo $OUTPUT->footer();

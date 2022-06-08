@@ -18,14 +18,19 @@
     @template local_backup/download
 
 }}
-<h1>Download</h1>
 
+<h1>{{coursename}}</h1>
 <div class="card">
   <div class="card-body">
-    <h5 class="card-title">Download</h5>
-    <p class="card-text">Download course</p>
+    <p class="card-text">Status : {{result}}</p>
+    {{#fileexistsflag}}
+    <p class="card-text">Last Archive : {{fileexists}}</p>
     <a href="{{downloadurl}}?courseid={{courseid}}" class="btn btn-info">Download</a>
-    <a href="{{rabbitmqurl}}?courseid={{courseid}}" class="btn btn-info">Rabbitmq</a>
+    <a href="{{rerabbitmqurl}}?courseid={{courseid}}" class="btn btn-info">Re-Archive</a>
+    {{/fileexistsflag}}
+    {{^fileexistsflag}}
+    <a href="{{rabbitmqurl}}?courseid={{courseid}}" class="btn btn-info">Archive</a>
+    {{/fileexistsflag}}
   </div>
 </div>
 

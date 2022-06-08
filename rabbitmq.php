@@ -21,21 +21,12 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
-$PAGE->set_url(new moodle_url('/local/backup/list.php'));
+$PAGE->set_url(new moodle_url('/local/backup/rabbitmq.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('List Course');
-
-echo $OUTPUT->header();
 
 $userid = $USER->id;
-
 $courseid = optional_param('courseid', null, PARAM_INT);
 
-$templatecontext = (object)[
-    'courseid' => $courseid,
-    'downloadurl' => new moodle_url('/local/backup/download.php'),
-    'rabbitmqurl' => new moodle_url('/local/backup/rabbitmq.php'),
-];
-
-echo $OUTPUT->render_from_template('local_backup/download', $templatecontext);
-echo $OUTPUT->footer();
+shell_exec("php task.php $userid $courseid");
+$url = new moodle_url('/local/backup/manage.php');
+redirect($url);
