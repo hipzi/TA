@@ -1,5 +1,8 @@
 <?php
 
+define('CLI_SCRIPT', true);
+require_once(__DIR__ . '/../../config.php');
+
 require_once __DIR__ . '/vendor/autoload.php';
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -26,7 +29,7 @@ $callback = function ($msg) {
     $courseid = $data['courseid'];
     $userid = $data['userid'];
 
-    $buildqueueuser = "build_message_$userid";
+    $buildqueueuser = "build_message_" . $userid . "_" . "$courseid";
     $channel->queue_declare($buildqueueuser, false, true, false, false);
     $data = "Sedang Building Course $courseid";
     $msguser = new AMQPMessage(
@@ -40,7 +43,7 @@ $callback = function ($msg) {
     shell_exec("./backupBuild.sh $courseid");
     chdir($old_path);
 
-    $finishqueueuser = "finish_message_$userid";
+    $finishqueueuser = "finish_message_" . $userid . "_" . "$courseid";
     $channel->queue_declare($finishqueueuser, false, true, false, false);
     $data = "Selesai Building Course $courseid";
     $msguser = new AMQPMessage(

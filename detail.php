@@ -34,7 +34,7 @@ $userid = $USER->id;
 
 $courseid = optional_param('courseid', null, PARAM_INT);
 $coursename = "Course $courseid";
-$queuename = "message_$userid";
+$queuename = "message_" . $userid . "_" . "$courseid";
 
 $filename = "image/course-id-$courseid.tar";
 if (file_exists($filename)) {
