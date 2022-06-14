@@ -21,19 +21,23 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
-$PAGE->set_url(new moodle_url('/local/backup/detail.php'));
+$PAGE->set_url(new moodle_url('/local/backup/detailcategory.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Course Detail');
+$PAGE->set_title('Category Detail');
 
 echo $OUTPUT->header();
 
 $userid = $USER->id;
 
-$courseid = optional_param('courseid', null, PARAM_INT);
-$coursename = "Course $courseid";
-$queuename = "message_" . $userid . "_" . "$courseid";
+$categoryid = optional_param('categoryid', null, PARAM_INT);
+$categoryname = "Category $categoryid";
+$queuename = "category_" . $userid . "_" . "$categoryid";
+$categoryid = 9;
+$directory = "docker/category/";
+$namefilecoursecategory = "category_".$categoryid."_".$userid;
 
-$filename = "image/course-id-$courseid.tar";
+$filename = "image/category-$categoryid-$userid.tar";
+
 if (file_exists($filename)) {
     $fileexists = date ("d F Y H:i:s", filemtime($filename));
     $fileexistsflag = true;
@@ -41,6 +45,31 @@ if (file_exists($filename)) {
     $fileexists = "File not found";
     $fileexistsflag = false;
 }
+
+if ($userid == 2 ) {
+    $sql = "select c.id as id from mdl_course c where c.category = :categoryid";
+    $params = [
+        'categoryid' => $categoryid,
+    ];
+    $records = $DB->get_records_sql($sql, $params);
+} else if ($rolename <= 4 ) {
+    $sql = "select c.id as id from mdl_course c join mdl_enrol e on e.courseid = c.id join mdl_user_enrolments ue on ue.enrolid = e.id join mdl_role_assignments ra on ra.userid = ue.userid join mdl_role r on r.id = ra.roleid where ue.userid = :userid and (r.shortname='manager' or r.shortname='coursecreator' or r.shortname='editingteacher' or r.shortname='teacher') and c.category = :categoryid";
+    $params = [
+        'userid' => $userid,
+        'categoryid' => $categoryid,
+    ];
+    $records = $DB->get_records_sql($sql, $params);
+} 
+
+$allKeysOfRecords = array_keys($records);
+$filecoursecategory = fopen($directory.$namefilecoursecategory.".txt", "w");
+
+$outputfilecoursecategory = "";
+foreach($allKeysOfRecords as &$tempKey) {
+    $outputfilecoursecategory .= $records[$tempKey]->id."\n";
+}
+fwrite($filecoursecategory, $outputfilecoursecategory);
+fclose($filecoursecategory); 
 
 function buildQueue($queue){
     $buildqueue = shell_exec("rabbitmqadmin get queue=build_$queue | awk -F '|' 'NR==4{print $5}'");
@@ -61,8 +90,9 @@ if(!is_null(buildQueue($queuename)) && is_null(finishQueue($queuename))){
 } 
 
 $templatecontext = (object)[
-    'courseid' => $courseid,
-    'coursename' => $coursename,
+    'userid' => $userid,
+    'categoryid' => $categoryid,
+    'categoryname' => $categoryname,
     'fileexists' => $fileexists,
     'fileexistsflag' => $fileexistsflag,
     'status' => $status,
@@ -72,5 +102,5 @@ $templatecontext = (object)[
     'result' => $result,
 ];
 
-echo $OUTPUT->render_from_template('local_backup/detail', $templatecontext);
+echo $OUTPUT->render_from_template('local_backup/detailcategory', $templatecontext);
 echo $OUTPUT->footer();

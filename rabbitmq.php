@@ -26,7 +26,13 @@ $PAGE->set_context(\context_system::instance());
 
 $userid = $USER->id;
 $courseid = optional_param('courseid', null, PARAM_INT);
+$categoryid = optional_param('categoryid', null, PARAM_INT);
 
-shell_exec("php task.php $userid $courseid");
-$url = new moodle_url('/local/backup/manage.php');
+if(!is_null($courseid) && is_null($categoryid)){
+    shell_exec("php task.php $userid $courseid");
+    $url = new moodle_url('/local/backup/manage.php');
+} else if(!is_null($categoryid)) {
+    shell_exec("php task_category.php $userid $categoryid");
+    $url = new moodle_url('/local/backup/managecategory.php');
+} 
 redirect($url);
