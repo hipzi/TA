@@ -32,7 +32,6 @@ $userid = $USER->id;
 $categoryid = optional_param('categoryid', null, PARAM_INT);
 $categoryname = "Category $categoryid";
 $queuename = "category_" . $userid . "_" . "$categoryid";
-$categoryid = 9;
 $directory = "docker/category/";
 $namefilecoursecategory = "category_".$categoryid."_".$userid;
 
